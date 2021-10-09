@@ -1,36 +1,47 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
+import { Stage, Layer, Rect } from 'react-konva';
 import { makeStyles } from '@mui/styles';
-import { Stage, Layer, Rect  } from 'react-konva';
-import PlusSVG from 'images/kboard/plus.svg';
-
 const useStyles = makeStyles({
-  stage: {
-    background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
-    // background: `url(${PlusSVG}) top left`,
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    left: 0,
-    right: 0,
-    width: (props) => `${props.width}px`,
-    height: (props) => `${props.height}px`,
-  }
+  canvasContainer: {
+    position: 'relative',
+    width: (props) => props.width,
+    height: (props) => props.height,
+  },
 });
 
+const Board = ({ width, height, backgroundColor, showGridLines }) => {
+  const classes = useStyles({ width, height });
+  const [containerRect, setContainerRect] = useState({});
+  const { width: canvasWidth, height: canvasHeight } = containerRect;
 
-const Board = ({width, height}) => {
-  const classes = useStyles({width, height});
+  const containerRef = useCallback((node) => {
+    if (node !== null) {
+      setContainerRect(node.getBoundingClientRect());
+    }
+  }, []);
 
-  return  <Stage width={width} height={height} className={classes.stage}>
-    <Layer>
-      <Rect
-        x={0}
-        y={0}
-        width={width}
-        height={height}
-        fill="#ddd"
-      />
-    </Layer>
-  </Stage>
-}
+  return (
+    <div ref={containerRef} className={classes.canvasContainer}>
+      <Stage width={canvasWidth} height={canvasHeight} draggable>
+        <Layer>
+          <Rect
+            x={0}
+            y={0}
+            width={canvasWidth}
+            height={canvasHeight}
+            fill={backgroundColor}
+          />
+        </Layer>
+      </Stage>
+    </div>
+  );
+};
 
 export default Board;
+
+Board.defaultProps = {
+  width: '100vw',
+  height: '100vh',
+  backgroundColor: '#f7f9fa',
+  showGridLines: true,
+};
