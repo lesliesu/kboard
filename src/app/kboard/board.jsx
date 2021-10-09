@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Stage, Layer, Rect } from 'react-konva';
 import { makeStyles } from '@mui/styles';
 const useStyles = makeStyles({
@@ -14,9 +14,14 @@ const Board = ({ width, height, backgroundColor, showGridLines }) => {
   const [containerRect, setContainerRect] = useState({});
   const { width: canvasWidth, height: canvasHeight } = containerRect;
 
+  const resizeObserver = useRef(null);
   const containerRef = useCallback((node) => {
     if (node !== null) {
       setContainerRect(node.getBoundingClientRect());
+      resizeObserver.current = new ResizeObserver(() => {
+        setContainerRect(node.getBoundingClientRect());
+      });
+      resizeObserver.current.observe(node);
     }
   }, []);
 
