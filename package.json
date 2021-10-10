@@ -18,6 +18,7 @@
     "react-scripts": "4.0.3",
     "reactive-state": "^3.6.3",
     "rxjs": "^7.3.1",
+    "use-image": "^1.0.8",
     "web-vitals": "^1.1.2"
   },
   "scripts": {

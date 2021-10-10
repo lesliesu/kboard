@@ -1,17 +1,18 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { Stage, Layer, Rect, Line } from 'react-konva';
 import { createUseStyles } from 'react-jss';
-// import Gridlines from './gridlines';
+import useImage from 'use-image';
 
 const useStyles = createUseStyles({
   canvasContainer: {
     position: 'relative',
     width: (props) => props.width,
     height: (props) => props.height,
-    background: 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtWK6eAAAAAXNSR0IArs4c6QAABa5JREFUeF7t18Ftg1AURUGgFcI+JaSklOKFy4iUFpIOsgda+YqQ3IOP5HEFD8ZH156P4/ie5/l38im8gbfHEUfhGDdM03ye5+e6rjcv4/lvYN/3j+uKbdt+nn+NC643IJDQ90AgIYzHKQIJmQgkhCGQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnci3IfYzx1Tvt9S5aluX9euoxxt/rPX3ziQUSchFICMNPrB6Gn1g9E3/SQyYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHom/wUwQ8zbho4HAAAAAElFTkSuQmCC) top left',
-    backgroundColor: (props) => props.backgroundColor,
   },
 });
+
+const backgroundImageSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtWK6eAAAAAXNSR0IArs4c6QAABa5JREFUeF7t18Ftg1AURUGgFcI+JaSklOKFy4iUFpIOsgda+YqQ3IOP5HEFD8ZH156P4/ie5/l38im8gbfHEUfhGDdM03ye5+e6rjcv4/lvYN/3j+uKbdt+nn+NC643IJDQ90AgIYzHKQIJmQgkhCGQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnYkFCJgIJYViQHoZAeiYWJGQikBCGBelhCKRnci3IfYzx1Tvt9S5aluX9euoxxt/rPX3ziQUSchFICMNPrB6Gn1g9E3/SQyYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHomFiRkIpAQhgXpYQikZ2JBQiYCCWFYkB6GQHom/wUwQ8zbho4HAAAAAElFTkSuQmCC';
+const fillPatternScale= {x: 0.36, y: 0.36};
  
 // dymmy code starts
 const points = [0, 0, 100, 0, 100, 100];
@@ -25,7 +26,6 @@ const Board = ({ width, height, backgroundColor, transparent, showGridLines }) =
   const [containerRect, setContainerRect] = useState({});
   const { width: canvasWidth, height: canvasHeight } = containerRect;
 
-  
   const resizeObserver = useRef(null);
   const containerRef = useCallback((node) => {
     if (node !== null) {
@@ -41,6 +41,9 @@ const Board = ({ width, height, backgroundColor, transparent, showGridLines }) =
   const handleDragMove = useCallback((e) => {
     !transparent && backgroundRef.current.absolutePosition({ x: 0, y: 0 });
   }, [transparent]);
+  const [backgroundImage] = useImage(backgroundImageSrc);
+  const fillPatternImage = useMemo(() => showGridLines ? backgroundImage : null, [showGridLines, backgroundImage]);
+
 
   return (
     <div ref={containerRef} className={classes.canvasContainer}>
@@ -57,6 +60,9 @@ const Board = ({ width, height, backgroundColor, transparent, showGridLines }) =
                 width={canvasWidth}
                 height={canvasHeight}
                 fill={backgroundColor}
+                fillPatternImage={fillPatternImage}
+                fillPriority='pattern'
+                fillPatternScale={fillPatternScale}
                 listening={false}
               /> 
             }
@@ -84,5 +90,5 @@ Board.defaultProps = {
   height: '100vh',
   backgroundColor: '#f7f9fa',
   showGridLines: true,
-  transparent: true
+  transparent: false
 };
